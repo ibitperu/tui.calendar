@@ -7,20 +7,20 @@ env:
 jobs:
   check-version:
     runs-on: ubuntu-latest
+    outputs:
+      committed-version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
-      - name: Check the package version
-        id: cpv
-        uses: PostHog/check-package-version@v2
-        with:
-          path: ${{ env.WORKING_DIRECTORY }}
-      - name: Log when unchanged
-        if: steps.cpv.outputs.is-new-version == 'false'
-        run: 'echo "No version change"'
-      - name: Cancel workflow
-        if: steps.cpv.outputs.is-new-version == 'false'
-        uses: andymckay/cancel-action@0.2
+
+      - name: Get package version
+        id: get-version
+        run: |
+          VERSION=$(jq -r .version ${{ env.WORKING_DIRECTORY }}/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Log version
+        run: echo "Package version is ${{ steps.get-version.outputs.version }}"
 
   publish-release:
     needs: check-version
@@ -40,13 +40,13 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
           npm pack
-        # Esto genera un archivo tipo mi-lib-1.0.0.tgz en apps/calendar/
+        # genera apps/calendar/mi-lib-x.x.x.tgz
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: calendar@${{ steps.cpv.outputs.committed-version }}
-          name: "Calendar v${{ steps.cpv.outputs.committed-version }}"
+          tag_name: calendar@${{ needs.check-version.outputs.committed-version }}
+          name: "Calendar v${{ needs.check-version.outputs.committed-version }}"
           files: |
             ${{ env.WORKING_DIRECTORY }}/*.tgz
             ${{ env.WORKING_DIRECTORY }}/dist/**
