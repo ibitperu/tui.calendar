@@ -34,7 +34,7 @@ jobs:
       - name: Build calendar
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
-          npm run build:calendar
+          npm run build
 
       - name: Package dist as tarball
         working-directory: ${{ env.WORKING_DIRECTORY }}

@@ -57,8 +57,8 @@ jobs:
         run: |
           rm -rf ./apps/react-calendar/package-lock.json
           rm -rf ./apps/vue-calendar/package-lock.json
-          git config --local user.name "lja1018"
-          git config --local user.email "jaeeon.lim@nhn.com"
+          git config --local user.name "Isaias Mayon"
+          git config --local user.email "isaias.mayon@ibit.pe"
           git add .
           git commit -m "chore: update version of wrappers to v${{ steps.version.outputs.committed-version }}"
 
@@ -66,7 +66,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          branch: fix/dompurify
 
       - name: Push new version tags
         run: |
